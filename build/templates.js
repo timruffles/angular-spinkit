@@ -74,6 +74,11 @@ angular.module('angular-spinkit').run(['$templateCache', function($templateCache
   );
 
 
+  $templateCache.put('src/templates/fallback.html',
+    "<div class=\"spinkit-fallback\"></div>\n"
+  );
+
+
   $templateCache.put('src/templates/pulseSpinner.html',
     "<div class=\"pulse-spinner\"></div>\n"
   );

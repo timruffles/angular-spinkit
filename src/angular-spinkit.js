@@ -6,8 +6,7 @@
  */
 'use strict';
 
-angular.module('angular-spinkit',
-  [
+var MODULES = [
     'ngRotatingPlaneSpinner',
     'ngDoubleBounceSpinner',
     'ngWaveSpinner',
@@ -20,7 +19,11 @@ angular.module('angular-spinkit',
     'ngWordPressSpinner',
     'ngFadingCircleSpinner',
     'ngSpinkitImagePreloader'
-  ]);
+  ];
+
+angular.module('angular-spinkit', MODULES);
+
+if(animationSupported()) {
 
 angular.module('ngRotatingPlaneSpinner', []).directive('rotatingPlaneSpinner', function () {
   return {
@@ -99,6 +102,24 @@ angular.module('ngFadingCircleSpinner', []).directive('fadingCircleSpinner', fun
   };
 });
 
+} else {
+
+  var replacement = function() {
+    return {
+      restrict: "E",
+      templateUrl: "src/templates/fallback.html",
+    }
+  };
+
+  MODULES.forEach(function(name) {
+    var directiveName = name.replace(/^ng(\w)(\w+)/, function(_, fc, rest) {
+      return fc.toLowerCase() + rest;
+    });
+    angular.module(name, []).directive(directiveName, replacement)
+  });
+
+}
+
 angular.module('ngSpinkitImagePreloader', []).directive('spinkitImagePreloader', ['$compile', '$injector', function ($compile, $injector) {
   return {
     restrict: 'A',
@@ -149,3 +170,29 @@ angular.module('ngSpinkitImagePreloader', []).directive('spinkitImagePreloader',
     }
   };
 }]);
+
+function animationSupported() {
+  var animation = false,
+    animationstring = 'animation',
+    keyframeprefix = '',
+    domPrefixes = 'Webkit Moz O ms Khtml'.split(' '),
+    elm = document.createElement("div"),
+    pfx  = '';
+
+  if( elm.style.animationName !== undefined ) { animation = true; }    
+
+  if( animation === false ) {
+    for( var i = 0; i < domPrefixes.length; i++ ) {
+      if( elm.style[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
+        pfx = domPrefixes[ i ];
+        animationstring = pfx + 'Animation';
+        keyframeprefix = '-' + pfx.toLowerCase() + '-';
+        animation = true;
+        break;
+      }
+    }
+  }
+
+  return animation;
+}
+
